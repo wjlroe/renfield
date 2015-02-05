@@ -4,7 +4,9 @@
             [compojure.handler :refer [site]]
             [compojure.route :as route]
             [hiccup.core :refer :all]
-            [prone.middleware :as prone]
+            [prone
+             [debug :refer [debug]]
+             [middleware :as prone]]
             [renfield.queue :as queue]))
 
 (defn default-layout
@@ -19,10 +21,11 @@
 
 (defn index
   [request]
-  (default-layout
-    [:h1 "Send URLS to /goto"]
-    [:p "Sent URLS will (eventually) be openned in your browser of choice"]
-    [:pre {} (queue/q-stats (::queue request))]))
+  (let [stats (queue/q-stats (::queue request))]
+    (default-layout
+      [:h1 "Send URLS to /goto"]
+      [:p "Sent URLS will (eventually) be openned in your browser of choice"]
+      [:pre {} stats])))
 
 (defroutes app-routes
   (GET "/" request (index request)))
@@ -31,7 +34,7 @@
   (fn [req]
     (f (assoc req ::queue queue))))
 
-(defn make-handler [queue]
-  (-> (site app-routes)
-      prone/wrap-exceptions
-      (wrap-app-component queue)))
+(defn make-handler [queue prone-enabled?]
+  (cond-> (site app-routes)
+    prone-enabled? prone/wrap-exceptions
+    true (wrap-app-component queue)))
