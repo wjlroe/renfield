@@ -19,7 +19,14 @@
 
 (defn enqueue-url
   [q url]
-  (put! q :urls url))
+  (put! q :urls {:url url}))
+
+(defn get-url
+  [q]
+  (take! q :urls 10 :timed-out!))
+
+(def mark-done complete!)
+(def retry-task retry!)
 
 (defn q-stats
   [q]

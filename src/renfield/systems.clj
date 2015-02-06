@@ -1,6 +1,7 @@
 (ns renfield.systems
   (:require [com.stuartsierra.component :as component]
             [environ.core :refer [env]]
+            [renfield.receiver :refer [new-receiver]]
             [renfield.webapp :refer [make-handler]]
             [renfield.queue :as queue]
             [ring.adapter.jetty :refer [run-jetty]]))
@@ -36,11 +37,13 @@
 (defn dev-system
   []
   (component/system-map
+   :receiver (new-receiver)
    :queue (queue/new-queue (queue-directory))
    :web (new-web-server (http-port) true)))
 
 (defn prod-system
   []
   (component/system-map
+   :receiver (new-receiver)
    :queue (queue/new-queue (queue-directory))
    :web (new-web-server (http-port) false)))
