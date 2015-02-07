@@ -7,7 +7,11 @@
             [prone
              [debug :refer [debug]]
              [middleware :as prone]]
-            [renfield.queue :as queue]))
+            [renfield.queue :as queue]
+            [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.util.response :refer [redirect-after-post]]
+            [taoensso.timbre :as timbre]))
 
 (defn default-layout
   [& body]
@@ -25,9 +29,20 @@
     (default-layout
       [:h1 "Send URLS to /goto"]
       [:p "Sent URLS will (eventually) be openned in your browser of choice"]
-      [:pre {} stats])))
+      [:pre {} stats]
+      [:form {:method "post"
+              :action "/goto"}
+       [:input {:type "text" :name "url"}]
+       [:input {:type "submit"}]])))
+
+(defn goto
+  [url request]
+  (timbre/info "got url:" url)
+  (queue/enqueue-url (::queue request) url)
+  (redirect-after-post "/"))
 
 (defroutes app-routes
+  (POST "/goto" [url :as req] (goto url req))
   (GET "/" request (index request)))
 
 (defn wrap-app-component [f queue]
@@ -37,4 +52,5 @@
 (defn make-handler [queue prone-enabled?]
   (cond-> (site app-routes)
     prone-enabled? prone/wrap-exceptions
-    true (wrap-app-component queue)))
+    true (wrap-app-component queue)
+    true (wrap-defaults api-defaults)))

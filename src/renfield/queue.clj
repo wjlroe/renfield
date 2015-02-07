@@ -19,7 +19,8 @@
 
 (defn enqueue-url
   [q url]
-  (put! q :urls {:url url}))
+  (let [{:keys [queue]} q]
+    (put! queue :urls {:url url})))
 
 (defn get-url
   [q]

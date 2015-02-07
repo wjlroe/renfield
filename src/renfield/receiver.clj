@@ -1,6 +1,7 @@
 (ns renfield.receiver
   (:require [clojure.core.async :as async
              :refer [chan timeout alts! go >!]]
+            [clojure.java.browse :refer [browse-url]]
             [clojure.java.shell :refer [sh]]
             [clojure.stacktrace :refer [print-stack-trace]]
             [clojure.string :refer [join]]
@@ -29,9 +30,8 @@
 
 (defn open-url
   [url]
-  (let [cmd ["open" url]]
-    (log-cmd (join " " cmd)
-             (apply sh cmd))))
+  (timbre/info "Opening: " url)
+  (browse-url url))
 
 (defn dequeue-url
   [queue]

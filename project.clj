@@ -12,6 +12,7 @@
                  [ring/ring-jetty-adapter "1.3.2"]
                  [factual/durable-queue "0.1.3"]
                  [prone "0.8.0"]
-                 [com.taoensso/timbre "3.3.1"]]
+                 [com.taoensso/timbre "3.3.1"]
+                 [ring/ring-defaults "0.1.3"]]
   :plugins [[lein-ring "0.9.1"]
             [lein-environ "1.0.0"]])
